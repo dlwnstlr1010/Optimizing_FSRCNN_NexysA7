@@ -11,7 +11,7 @@ def get_model_params(d, s, m, scale, input_size=(1, 33, 33), device='cpu'):
     try:
         model = FSRCNN(scale_factor=scale, d=d, s=s, m=m, num_channels=1).to(device)
 
-        # ✅ 실제 파라미터 수 계산
+        # 실제 파라미터 수 계산
         param_count = sum(p.numel() for p in model.parameters())
         print(f"[DEBUG] SUCCESS d={d}, s={s}, m={m} -> param_count={param_count}")
         return param_count
@@ -22,16 +22,21 @@ def get_model_params(d, s, m, scale, input_size=(1, 33, 33), device='cpu'):
 
 
 
-# ✅ 전체 조합 생성 및 조건 필터링
+# 전체 조합 생성 및 조건 필터링
 def generate_candidates(d_max, s_max, m_max, param_limit, scale, num_splits, output_dir):
     results = []
 
     total_combinations = d_max * s_max * m_max
     print(f"[INFO] Total combinations to check: {total_combinations}")
+    #2025.04.17 21:00 수정
+    for d in range(4, d_max + 1, 4):
+        for s in range(3, s_max + 1, 3):
+            if s >= d:
+                continue
+            for m in range(2, m_max + 1, 2):
+                if m >= s:
+                    continue
 
-    for d in range(5, d_max + 1, 5):
-        for s in range(3, d, 3):  # s < d
-            for m in range(2, s, 2):  # m < s
                 param_count = get_model_params(d, s, m, scale=scale)
                 print(f"[INFO] Trying d={d}, s={s}, m={m} -> param_count={param_count}")
     
