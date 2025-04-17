@@ -73,7 +73,7 @@ for index, row in df.iterrows():
                 lines = f.readlines()
                 psnr_line = [l for l in lines if "PSNR" in l][-1]
                 psnr_val = float(psnr_line.strip().split(":")[-1])
-                if psnr_val >= 26.0:
+                if psnr_val >= 30.0:
                     status = "pass"
         
         except:
