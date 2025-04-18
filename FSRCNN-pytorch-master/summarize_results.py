@@ -39,6 +39,7 @@ def main():
 
         d, s, m = extract_dsm(folder)
         if d is None:
+            print(f"[SKIP] Invalid folder name: {folder}")
             continue
 
         psnr_path = os.path.join(folder_path, "psnr.txt")
@@ -53,19 +54,25 @@ def main():
                 "psnr": psnr,
                 "param_count": param_count
             })
+        else:
+            print(f"[WARN] psnr.txt missing or unreadable in: {folder}")
+
+    if not data:
+        print("[WARN] No valid data found. Check results/ for psnr.txt files.")
+        return
 
     df = pd.DataFrame(data)
-    df = df.sort_values(by="psnr", ascending=False)
+    df = df.sort_values(by="param_count", ascending=True)
     df.to_csv(OUTPUT_CSV, index=False)
     print(f"[INFO] Summary saved to {OUTPUT_CSV}")
+    print(df.head())
 
-    # Save best result
-    if len(df) > 0:
-        os.makedirs(os.path.dirname(BEST_TXT), exist_ok=True)
-        best = df.iloc[0]
-        with open(BEST_TXT, "w") as f:
-            f.write(f"d={best.d}, s={best.s}, m={best.m}, psnr={best.psnr:.4f}, param_count={best.param_count}\n")
-        print(f"[INFO] Best PSNR saved to {BEST_TXT}")
+    # 최고 PSNR 모델 저장
+    os.makedirs(os.path.dirname(BEST_TXT), exist_ok=True)
+    best = df.loc[df['psnr'].idxmax()]
+    with open(BEST_TXT, "w") as f:
+        f.write(f"d={best.d}, s={best.s}, m={best.m}, psnr={best.psnr:.4f}, param_count={best.param_count}\n")
+    print(f"[INFO] Best PSNR saved to {BEST_TXT}")
 
 if __name__ == "__main__":
     main()
