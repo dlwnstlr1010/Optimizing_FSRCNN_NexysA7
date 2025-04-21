@@ -1,0 +1,2 @@
+Best Model: d16_s12_m4
+PSNR: 30.44
